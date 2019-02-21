@@ -18,22 +18,24 @@ using JetBrains.Annotations;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>APPE</code> command.
+    /// Implements the <c>APPE</c> command.
     /// </summary>
     public class AppeCommandHandler : FtpCommandHandler
     {
         [NotNull]
-        private readonly IFtpServer _server;
+        private readonly IBackgroundTransferWorker _backgroundTransferWorker;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppeCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        /// <param name="server">The FTP server.</param>
-        public AppeCommandHandler([NotNull] IFtpConnection connection, [NotNull] IFtpServer server)
-            : base(connection, "APPE")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        /// <param name="backgroundTransferWorker">The background transfer worker service.</param>
+        public AppeCommandHandler(
+            [NotNull] IFtpConnectionAccessor connectionAccessor,
+            [NotNull] IBackgroundTransferWorker backgroundTransferWorker)
+            : base(connectionAccessor, "APPE")
         {
-            _server = server;
+            _backgroundTransferWorker = backgroundTransferWorker;
         }
 
         /// <inheritdoc/>
@@ -111,7 +113,7 @@ namespace FubarDev.FtpServer.CommandHandlers
 
                 if (backgroundTransfer != null)
                 {
-                    _server.EnqueueBackgroundTransfer(backgroundTransfer, Connection);
+                    _backgroundTransferWorker.Enqueue(backgroundTransfer);
                 }
             }
 

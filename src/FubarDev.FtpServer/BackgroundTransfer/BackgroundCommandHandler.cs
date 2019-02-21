@@ -22,7 +22,7 @@ namespace FubarDev.FtpServer.BackgroundTransfer
     /// Asynchronous processing of an FTP command.
     /// </summary>
     /// <remarks>
-    /// This allows the implementation of the <code>ABOR</code> command.
+    /// This allows the implementation of the <c>ABOR</c> command.
     /// </remarks>
     public sealed class BackgroundCommandHandler : IBackgroundCommandHandler, IDisposable
     {
@@ -30,7 +30,7 @@ namespace FubarDev.FtpServer.BackgroundTransfer
 
         private readonly object _syncRoot = new object();
 
-        private CancellationTokenRegistration _cancellationTokenRegistration;
+        private readonly CancellationTokenRegistration _cancellationTokenRegistration;
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -153,6 +153,7 @@ namespace FubarDev.FtpServer.BackgroundTransfer
                 _cancellationTokenSource.Cancel(true);
             }
 
+            // ReSharper disable once ImpureMethodCallOnReadonlyValueField
             _cancellationTokenRegistration.Dispose();
             _cancellationTokenSource.Dispose();
         }

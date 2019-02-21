@@ -17,7 +17,7 @@ using FubarDev.FtpServer.ListFormatters.Facts;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>MFF</code> command.
+    /// Implements the <c>MFF</c> command.
     /// </summary>
     public class MffCommandHandler : FtpCommandHandler
     {
@@ -46,9 +46,9 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="MffCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public MffCommandHandler(IFtpConnection connection)
-            : base(connection, "MFF")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public MffCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "MFF")
         {
         }
 

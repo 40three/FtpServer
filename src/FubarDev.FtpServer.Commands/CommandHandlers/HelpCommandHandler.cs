@@ -8,16 +8,16 @@ using System.Threading.Tasks;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// The <code>HELP</code> command handler.
+    /// The <c>HELP</c> command handler.
     /// </summary>
     public class HelpCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="HelpCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public HelpCommandHandler(IFtpConnection connection)
-            : base(connection, "HELP")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public HelpCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "HELP")
         {
         }
 

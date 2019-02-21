@@ -13,16 +13,21 @@ using JetBrains.Annotations;
 namespace FubarDev.FtpServer.CommandExtensions
 {
     /// <summary>
-    /// The implementation of the <code>SITE UTIME</code> command.
+    /// The implementation of the <c>SITE UTIME</c> command.
     /// </summary>
     public class SiteUtimeCommandExtension : FtpCommandHandlerExtension
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SiteUtimeCommandExtension"/> class.
         /// </summary>
-        /// <param name="connection">The connection this instance is used for.</param>
-        public SiteUtimeCommandExtension([NotNull] IFtpConnection connection)
-            : base(connection, "SITE", "UTIME")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public SiteUtimeCommandExtension([NotNull] IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "SITE", "UTIME")
+        {
+        }
+
+        /// <inheritdoc />
+        public override void InitializeConnectionData()
         {
         }
 

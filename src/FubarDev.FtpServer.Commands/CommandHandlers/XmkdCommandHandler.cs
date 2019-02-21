@@ -14,16 +14,16 @@ using FubarDev.FtpServer.FileSystem;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>XMKD</code> command.
+    /// Implements the <c>XMKD</c> command.
     /// </summary>
     public class XmkdCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="XmkdCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public XmkdCommandHandler(IFtpConnection connection)
-            : base(connection, "XMKD")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public XmkdCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "XMKD")
         {
         }
 

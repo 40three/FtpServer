@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>DELE</code> command.
+    /// Implements the <c>DELE</c> command.
     /// </summary>
     public class DeleCommandHandler : FtpCommandHandler
     {
@@ -28,10 +28,10 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="DeleCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
         /// <param name="logger">The logger.</param>
-        public DeleCommandHandler([NotNull] IFtpConnection connection, [CanBeNull] ILogger<DeleCommandHandler> logger = null)
-            : base(connection, "DELE")
+        public DeleCommandHandler([NotNull] IFtpConnectionAccessor connectionAccessor, [CanBeNull] ILogger<DeleCommandHandler> logger = null)
+            : base(connectionAccessor, "DELE")
         {
             _logger = logger;
         }

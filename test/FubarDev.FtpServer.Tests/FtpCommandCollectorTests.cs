@@ -201,9 +201,9 @@ namespace FubarDev.FtpServer.Tests
         private static IEnumerable<FtpCommand> Collect(FtpCommandCollector collector, string data)
         {
             var temp = collector.Encoding.GetBytes(data);
-            foreach (var escapedData in EscapeIAC(temp).Select(x => x.Span.ToArray()))
+            foreach (var escapedDataMemory in EscapeIAC(temp))
             {
-                var collected = collector.Collect(escapedData, 0, escapedData.Length);
+                var collected = collector.Collect(escapedDataMemory.Span);
                 foreach (var command in collected)
                 {
                     yield return command;
@@ -218,14 +218,26 @@ namespace FubarDev.FtpServer.Tests
             public int Compare(FtpCommand x, FtpCommand y)
             {
                 if (ReferenceEquals(x, y))
+                {
                     return 0;
-                if (ReferenceEquals(x, null))
+                }
+
+                if (x == null)
+                {
                     return -1;
-                if (ReferenceEquals(y, null))
+                }
+
+                if (y == null)
+                {
                     return 1;
+                }
+
                 var v = string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
                 if (v != 0)
+                {
                     return v;
+                }
+
                 return _stringComparer.Compare(x.Argument, y.Argument);
             }
 

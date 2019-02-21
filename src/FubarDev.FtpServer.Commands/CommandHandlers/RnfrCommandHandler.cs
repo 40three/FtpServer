@@ -13,16 +13,16 @@ using FubarDev.FtpServer.FileSystem;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>RNFR</code> command.
+    /// Implements the <c>RNFR</c> command.
     /// </summary>
     public class RnfrCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RnfrCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public RnfrCommandHandler(IFtpConnection connection)
-            : base(connection, "RNFR")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public RnfrCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "RNFR")
         {
         }
 

@@ -5,6 +5,7 @@
 // <author>Mark Junker</author>
 //-----------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ using JetBrains.Annotations;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>PASS</code> command.
+    /// Implements the <c>PASS</c> command.
     /// </summary>
     public class PassCommandHandler : FtpCommandHandler
     {
@@ -30,14 +31,14 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="PassCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
         /// <param name="membershipProviders">The membership providers.</param>
         /// <param name="fileSystemClassFactory">The file system access factory.</param>
         public PassCommandHandler(
-            [NotNull] IFtpConnection connection,
+            [NotNull] IFtpConnectionAccessor connectionAccessor,
             [NotNull] IEnumerable<IMembershipProvider> membershipProviders,
             [NotNull] IFileSystemClassFactory fileSystemClassFactory)
-            : base(connection, "PASS")
+            : base(connectionAccessor, "PASS")
         {
             _membershipProviders = membershipProviders;
             _fileSystemClassFactory = fileSystemClassFactory;
@@ -57,22 +58,46 @@ namespace FubarDev.FtpServer.CommandHandlers
             var password = command.Argument;
             foreach (var membershipProvider in _membershipProviders)
             {
-                var validationResult = membershipProvider.ValidateUser(Connection.Data.User.Name, password);
+                var validationResult = await membershipProvider.ValidateUserAsync(Connection.Data.User.Name, password)
+                    .ConfigureAwait(false);
                 if (validationResult.IsSuccess)
                 {
-                    var isAnonymous = validationResult.Status == MemberValidationStatus.Anonymous;
-                    var userId = isAnonymous ? password : Connection.Data.User.Name;
+                    var accountInformation = new DefaultAccountInformation(
+                        validationResult.User ?? throw new InvalidOperationException("The user property must be set if validation succeeded."),
+                        membershipProvider);
+
                     Connection.Data.User = validationResult.User;
+
+#pragma warning disable 618
+                    Connection.Data.IsAnonymous = validationResult.User is IAnonymousFtpUser;
+#pragma warning restore 618
+
                     Connection.Data.IsLoggedIn = true;
                     Connection.Data.AuthenticatedBy = membershipProvider;
-                    Connection.Data.IsAnonymous = isAnonymous;
-                    Connection.Data.FileSystem = await _fileSystemClassFactory.Create(userId, isAnonymous).ConfigureAwait(false);
+                    Connection.Data.FileSystem = await _fileSystemClassFactory
+                        .Create(accountInformation)
+                        .ConfigureAwait(false);
                     Connection.Data.Path = new Stack<IUnixDirectoryEntry>();
                     return new FtpResponse(230, "Password ok, FTP server ready");
                 }
             }
 
             return new FtpResponse(530, "Username or password incorrect");
+        }
+
+        private class DefaultAccountInformation : IAccountInformation
+        {
+            public DefaultAccountInformation(IFtpUser user, IMembershipProvider authenticatedBy)
+            {
+                User = user;
+                AuthenticatedBy = authenticatedBy;
+            }
+
+            /// <inheritdoc />
+            public IFtpUser User { get; }
+
+            /// <inheritdoc />
+            public IMembershipProvider AuthenticatedBy { get; }
         }
     }
 }

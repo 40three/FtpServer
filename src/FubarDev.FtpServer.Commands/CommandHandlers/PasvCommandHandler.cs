@@ -11,13 +11,15 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+
 using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// The command handler for the <code>PASV</code> (4.1.2.) and <code>EPSV</code> commands.
+    /// The command handler for the <c>PASV</c> (4.1.2.) and <c>EPSV</c> commands.
     /// </summary>
     public class PasvCommandHandler : FtpCommandHandler
     {
@@ -26,10 +28,10 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="PasvCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection this command handler is created for.</param>
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
         /// <param name="pasvListenerFactory">The provider for passive ports.</param>
-        public PasvCommandHandler([NotNull] IFtpConnection connection, IPasvListenerFactory pasvListenerFactory)
-            : base(connection, "PASV", "EPSV")
+        public PasvCommandHandler([NotNull] IFtpConnectionAccessor connectionAccessor, IPasvListenerFactory pasvListenerFactory)
+            : base(connectionAccessor, "PASV", "EPSV")
         {
             _pasvListenerFactory = pasvListenerFactory;
         }
@@ -104,20 +106,22 @@ namespace FubarDev.FtpServer.CommandHandlers
                     var acceptTask = listener.AcceptPasvClientAsync();
                     if (acceptTask.Wait(timeout))
                     {
-                        var pasvRemoteAddress = ((IPEndPoint)acceptTask.Result.Client.RemoteEndPoint).Address;
+                        var passiveClient = acceptTask.Result;
 
-                        if (!Connection.PromiscuousPasv
-                            && !Equals(Connection.RemoteAddress.IPAddress, pasvRemoteAddress))
+                        if (!IsConnectionAllowed(passiveClient))
                         {
-                            Connection.Log?.LogWarning(
-                                $"Data connection attempt from {pasvRemoteAddress} for control connection from {Connection.RemoteAddress.IPAddress}, data connection rejected");
-
                             return new FtpResponse(
                                 425,
                                 "Data connection must be opened from same IP address as control connection");
                         }
-                        Connection.Log?.LogDebug("Data connection accepted from {0}", pasvRemoteAddress);
-                        Data.PassiveSocketClient = acceptTask.Result;
+
+                        if (Connection.Log?.IsEnabled(LogLevel.Debug) ?? false)
+                        {
+                            var pasvRemoteAddress = ((IPEndPoint)passiveClient.Client.RemoteEndPoint).Address;
+                            Connection.Log?.LogDebug($"Data connection accepted from {pasvRemoteAddress}");
+                        }
+
+                        Data.PassiveSocketClient = passiveClient;
                     }
                 }
             }
@@ -128,6 +132,29 @@ namespace FubarDev.FtpServer.CommandHandlers
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Validates that the passive connection can be used.
+        /// </summary>
+        /// <param name="client">The TCP client to validate.</param>
+        /// <returns><see langword="true"/> when the passive connection can be used.</returns>
+        private bool IsConnectionAllowed(TcpClient client)
+        {
+            if (Connection.PromiscuousPasv)
+            {
+                return true;
+            }
+
+            var pasvRemoteAddress = ((IPEndPoint)client.Client.RemoteEndPoint).Address;
+            if (Equals(pasvRemoteAddress, Connection.RemoteAddress.IPAddress))
+            {
+                return true;
+            }
+
+            Connection.Log?.LogWarning(
+                $"Data connection attempt from {pasvRemoteAddress} for control connection from {Connection.RemoteAddress.IPAddress}, data connection rejected");
+            return false;
         }
     }
 }

@@ -15,16 +15,16 @@ using FubarDev.FtpServer.ListFormatters.Facts;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>MFMT</code> command.
+    /// Implements the <c>MFMT</c> command.
     /// </summary>
     public class MfmtCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MfmtCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public MfmtCommandHandler(IFtpConnection connection)
-            : base(connection, "MFMT")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public MfmtCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "MFMT")
         {
         }
 

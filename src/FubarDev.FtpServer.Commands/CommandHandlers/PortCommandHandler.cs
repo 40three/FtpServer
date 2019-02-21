@@ -13,16 +13,16 @@ using System.Threading.Tasks;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>PORT</code> and <code>EPRT</code> commands.
+    /// Implements the <c>PORT</c> and <c>EPRT</c> commands.
     /// </summary>
     public class PortCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PortCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public PortCommandHandler(IFtpConnection connection)
-            : base(connection, "PORT", "EPRT")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public PortCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "PORT", "EPRT")
         {
         }
 

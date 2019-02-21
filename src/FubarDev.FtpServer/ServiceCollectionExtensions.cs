@@ -6,8 +6,8 @@ using System;
 
 using FubarDev.FtpServer;
 using FubarDev.FtpServer.BackgroundTransfer;
-using FubarDev.FtpServer.CommandExtensions;
 using FubarDev.FtpServer.CommandHandlers;
+
 using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
@@ -33,17 +33,27 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IFtpServer, FtpServer>();
             services.AddSingleton<ITemporaryDataFactory, TemporaryDataFactory>();
             services.AddSingleton<IPasvListenerFactory, PasvListenerFactory>();
+            services.AddSingleton<IFtpConnectionAccessor, FtpConnectionAccessor>();
 
-            services.AddScoped<IFtpConnectionAccessor, FtpConnectionAccessor>();
             services.AddScoped<TcpSocketClientAccessor>();
             services.AddScoped(sp => sp.GetRequiredService<TcpSocketClientAccessor>().TcpSocketClient);
 
             services.AddScoped<IFtpConnection, FtpConnection>();
 
+            services.AddSingleton<IBackgroundTransferWorker, BackgroundTransferWorker>();
+
+            services.AddSingleton(sp => (IFtpService)sp.GetRequiredService<IFtpServer>());
+            services.AddSingleton(sp => (IFtpService)sp.GetRequiredService<IBackgroundTransferWorker>());
+
+            services.AddSingleton<IFtpServerHost, FtpServerHost>();
+
             services.Scan(
                 sel => sel.FromAssemblyOf<PassCommandHandler>()
-                    .AddClasses(filter => filter.AssignableTo<IFtpCommandHandler>()).As<IFtpCommandHandler>().WithScopedLifetime()
-                    .AddClasses(filter => filter.AssignableTo<IFtpCommandHandlerExtension>().Where(t => t != typeof(GenericFtpCommandHandlerExtension))).As<IFtpCommandHandlerExtension>().WithScopedLifetime());
+                    .AddClasses(filter => filter.AssignableTo<IFtpCommandHandlerExtension>()).As<IFtpCommandHandlerExtension>().WithSingletonLifetime());
+
+            services.Scan(
+                sel => sel.FromAssemblyOf<PassCommandHandler>()
+                    .AddClasses(filter => filter.AssignableTo<IFtpCommandHandler>()).As<IFtpCommandHandler>().WithSingletonLifetime());
 
             configure(new FtpServerBuilder(services));
 

@@ -18,12 +18,12 @@ using Microsoft.Extensions.Logging;
 namespace FubarDev.FtpServer.CommandExtensions
 {
     /// <summary>
-    /// The implementation of the <code>SITE BLST</code> command.
+    /// The implementation of the <c>SITE BLST</c> command.
     /// </summary>
     public class SiteBlstCommandExtension : FtpCommandHandlerExtension
     {
         [NotNull]
-        private readonly IFtpServer _server;
+        private readonly IBackgroundTransferWorker _backgroundTransferWorker;
 
         [CanBeNull]
         private readonly ILogger<SiteBlstCommandExtension> _logger;
@@ -31,18 +31,26 @@ namespace FubarDev.FtpServer.CommandExtensions
         /// <summary>
         /// Initializes a new instance of the <see cref="SiteBlstCommandExtension"/> class.
         /// </summary>
-        /// <param name="connection">The connection this instance is used for.</param>
-        /// <param name="server">The FTP server.</param>
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        /// <param name="backgroundTransferWorker">The background transfer worker service.</param>
         /// <param name="logger">The logger.</param>
-        public SiteBlstCommandExtension([NotNull] IFtpConnection connection, [NotNull] IFtpServer server, [CanBeNull] ILogger<SiteBlstCommandExtension> logger = null)
-            : base(connection, "SITE", "BLST")
+        public SiteBlstCommandExtension(
+            [NotNull] IFtpConnectionAccessor connectionAccessor,
+            [NotNull] IBackgroundTransferWorker backgroundTransferWorker,
+            [CanBeNull] ILogger<SiteBlstCommandExtension> logger = null)
+            : base(connectionAccessor, "SITE", "BLST")
         {
-            _server = server;
+            _backgroundTransferWorker = backgroundTransferWorker;
             _logger = logger;
         }
 
         /// <inheritdoc/>
         public override bool? IsLoginRequired { get; set; } = true;
+
+        /// <inheritdoc />
+        public override void InitializeConnectionData()
+        {
+        }
 
         /// <inheritdoc/>
         public override async Task<FtpResponse> Process(FtpCommand command, CancellationToken cancellationToken)
@@ -63,7 +71,7 @@ namespace FubarDev.FtpServer.CommandExtensions
 
         private async Task<FtpResponse> SendBlstDirectly(CancellationToken cancellationToken)
         {
-            var taskStates = _server.GetBackgroundTaskStates();
+            var taskStates = _backgroundTransferWorker.GetStates();
             if (taskStates.Count == 0)
             {
                 return new FtpResponse(211, "No background tasks");
@@ -102,7 +110,7 @@ namespace FubarDev.FtpServer.CommandExtensions
                     NewLine = "\r\n",
                 })
                 {
-                    foreach (var line in GetLines(_server.GetBackgroundTaskStates()))
+                    foreach (var line in GetLines(_backgroundTransferWorker.GetStates()))
                     {
                         Connection.Log?.LogDebug(line);
                         await writer.WriteLineAsync(line).ConfigureAwait(false);

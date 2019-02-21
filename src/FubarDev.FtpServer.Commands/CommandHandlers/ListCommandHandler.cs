@@ -26,7 +26,7 @@ using Microsoft.Extensions.Logging;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>LIST</code> and <code>NLST</code> commands.
+    /// Implements the <c>LIST</c> and <c>NLST</c> commands.
     /// </summary>
     public class ListCommandHandler : FtpCommandHandler
     {
@@ -36,10 +36,10 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="ListCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
         /// <param name="logger">The logger.</param>
-        public ListCommandHandler([NotNull] IFtpConnection connection, [CanBeNull] ILogger<ListCommandHandler> logger = null)
-            : base(connection, "LIST", "NLST", "LS")
+        public ListCommandHandler([NotNull] IFtpConnectionAccessor connectionAccessor, [CanBeNull] ILogger<ListCommandHandler> logger = null)
+            : base(connectionAccessor, "LIST", "NLST", "LS")
         {
             _logger = logger;
         }
@@ -245,12 +245,12 @@ namespace FubarDev.FtpServer.CommandHandlers
             }
 
             /// <summary>
-            /// Gets a value indicating whether <code>LIST</code> returns all entries (including <code>.</code> and <code>..</code>).
+            /// Gets a value indicating whether <c>LIST</c> returns all entries (including <c>.</c> and <c>..</c>).
             /// </summary>
             public bool All { get; }
 
             /// <summary>
-            /// Gets a value indicating whether <code>LIST</code> returns all file system entries recursively.
+            /// Gets a value indicating whether <c>LIST</c> returns all file system entries recursively.
             /// </summary>
             public bool Recursive { get; }
 
