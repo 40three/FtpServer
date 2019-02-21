@@ -9,9 +9,9 @@ using JetBrains.Annotations;
 namespace FubarDev.FtpServer
 {
     /// <summary>
-    /// The interface that must be implemented by the FTP server
+    /// The interface that must be implemented by the FTP server.
     /// </summary>
-    public interface IFtpServer : IBackgroundTransferHost
+    public interface IFtpServer
     {
         /// <summary>
         /// This event is raised when the connection is ready to be configured.
@@ -19,7 +19,7 @@ namespace FubarDev.FtpServer
         event EventHandler<ConnectionEventArgs> ConfigureConnection;
 
         /// <summary>
-        /// Gets the public IP address (required for <code>PASV</code> and <code>EPSV</code>).
+        /// Gets the public IP address (required for <c>PASV</c> and <c>EPSV</c>).
         /// </summary>
         [NotNull]
         string ServerAddress { get; }
@@ -43,6 +43,7 @@ namespace FubarDev.FtpServer
         /// <summary>
         /// Starts the FTP server in the background.
         /// </summary>
+        [Obsolete("User IFtpServerHost.StartAsync instead.")]
         void Start();
 
         /// <summary>
@@ -51,6 +52,7 @@ namespace FubarDev.FtpServer
         /// <remarks>
         /// The FTP server cannot be started again after it was stopped.
         /// </remarks>
+        [Obsolete("User IFtpServerHost.StopAsync instead.")]
         void Stop();
     }
 }

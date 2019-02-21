@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// The <code>PBSZ</code> command handler.
+    /// The <c>PBSZ</c> command handler.
     /// </summary>
     public class PbszCommandHandler : FtpCommandHandler
     {
@@ -22,10 +22,10 @@ namespace FubarDev.FtpServer.CommandHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="PbszCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
         /// <param name="options">The SSL/TLS connection options.</param>
-        public PbszCommandHandler(IFtpConnection connection, IOptions<AuthTlsOptions> options)
-            : base(connection, "PBSZ")
+        public PbszCommandHandler(IFtpConnectionAccessor connectionAccessor, IOptions<AuthTlsOptions> options)
+            : base(connectionAccessor, "PBSZ")
         {
             _serverCertificate = options.Value.ServerCertificate;
         }

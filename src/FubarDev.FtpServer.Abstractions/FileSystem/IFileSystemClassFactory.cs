@@ -7,6 +7,10 @@
 
 using System.Threading.Tasks;
 
+using FubarDev.FtpServer.AccountManagement;
+
+using JetBrains.Annotations;
+
 namespace FubarDev.FtpServer.FileSystem
 {
     /// <summary>
@@ -15,14 +19,13 @@ namespace FubarDev.FtpServer.FileSystem
     public interface IFileSystemClassFactory
     {
         /// <summary>
-        /// Creates a <see cref="IUnixFileSystem"/> implementation for a given <paramref name="userId"/>.
+        /// Creates a <see cref="IUnixFileSystem"/> implementation for a given <paramref name="accountInformation"/>.
         /// </summary>
-        /// <param name="userId">The user ID to create the <see cref="IUnixFileSystem"/> for.</param>
-        /// <param name="isAnonymous">Specify whether we have an anonymous login.</param>
-        /// <returns>The new <see cref="IUnixFileSystem"/> for the <paramref name="userId"/>.</returns>
+        /// <param name="accountInformation">The FTP account to create the <see cref="IUnixFileSystem"/> for.</param>
+        /// <returns>The new <see cref="IUnixFileSystem"/> for the <paramref name="accountInformation"/>.</returns>
         /// <remarks>
-        /// When the login is anonymous, the <paramref name="userId"/> is the given password.
+        /// When the login is anonymous, the <see cref="IAccountInformation.User"/> must be of type <see cref="IAnonymousFtpUser"/>.
         /// </remarks>
-        Task<IUnixFileSystem> Create(string userId, bool isAnonymous);
+        Task<IUnixFileSystem> Create([NotNull] IAccountInformation accountInformation);
     }
 }

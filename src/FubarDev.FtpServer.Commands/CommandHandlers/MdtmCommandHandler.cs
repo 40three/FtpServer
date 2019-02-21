@@ -14,16 +14,16 @@ using FubarDev.FtpServer.FileSystem;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>MDTM</code> command.
+    /// Implements the <c>MDTM</c> command.
     /// </summary>
     public class MdtmCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MdtmCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public MdtmCommandHandler(IFtpConnection connection)
-            : base(connection, "MDTM")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public MdtmCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "MDTM")
         {
         }
 

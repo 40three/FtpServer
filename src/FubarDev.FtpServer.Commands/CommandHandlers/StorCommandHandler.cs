@@ -23,17 +23,19 @@ namespace FubarDev.FtpServer.CommandHandlers
     public class StorCommandHandler : FtpCommandHandler
     {
         [NotNull]
-        private readonly IFtpServer _server;
+        private readonly IBackgroundTransferWorker _backgroundTransferWorker;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StorCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection this command handler is created for.</param>
-        /// <param name="server">The FTP server.</param>
-        public StorCommandHandler([NotNull] IFtpConnection connection, [NotNull] IFtpServer server)
-            : base(connection, "STOR")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        /// <param name="backgroundTransferWorker">The background transfer worker service.</param>
+        public StorCommandHandler(
+            [NotNull] IFtpConnectionAccessor connectionAccessor,
+            [NotNull] IBackgroundTransferWorker backgroundTransferWorker)
+            : base(connectionAccessor, "STOR")
         {
-            _server = server;
+            _backgroundTransferWorker = backgroundTransferWorker;
         }
 
         /// <inheritdoc/>
@@ -112,7 +114,7 @@ namespace FubarDev.FtpServer.CommandHandlers
 
                 if (backgroundTransfer != null)
                 {
-                    _server.EnqueueBackgroundTransfer(backgroundTransfer, Connection);
+                    _backgroundTransferWorker.Enqueue(backgroundTransfer);
                 }
             }
 

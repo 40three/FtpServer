@@ -2,6 +2,7 @@
 // Copyright (c) Fubar Development Junker. All rights reserved.
 // </copyright>
 
+using System;
 using System.Collections.Generic;
 
 using JetBrains.Annotations;
@@ -37,6 +38,7 @@ namespace FubarDev.FtpServer
         /// <returns>A collection of command handler extensions provided by this command handler.</returns>
         [NotNull]
         [ItemNotNull]
+        [Obsolete("All IFtpCommandHandlerExtension implementations are now stand-alone.")]
         IEnumerable<IFtpCommandHandlerExtension> GetExtensions();
     }
 }

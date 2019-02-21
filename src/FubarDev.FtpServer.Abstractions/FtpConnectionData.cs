@@ -58,10 +58,11 @@ namespace FubarDev.FtpServer
         /// <summary>
         /// Gets or sets a value indicating whether the current user is anonymous.
         /// </summary>
+        [Obsolete("An anonymous user object now implements IAnonymousFtpUser.")]
         public bool IsAnonymous { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="Encoding"/> for the <code>NLST</code> command.
+        /// Gets or sets the <see cref="Encoding"/> for the <c>NLST</c> command.
         /// </summary>
         [CanBeNull]
         public Encoding NlstEncoding { get; set; }
@@ -115,7 +116,7 @@ namespace FubarDev.FtpServer
         public TcpClient PassiveSocketClient { get; set; }
 
         /// <summary>
-        /// Gets the <see cref="BackgroundCommandHandler"/> that's required for the <code>ABOR</code> command.
+        /// Gets the <see cref="BackgroundCommandHandler"/> that's required for the <c>ABOR</c> command.
         /// </summary>
         [NotNull]
         public IBackgroundCommandHandler BackgroundCommandHandler { get; }
@@ -135,13 +136,13 @@ namespace FubarDev.FtpServer
         public long? RestartPosition { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IUnixFileEntry"/> to use for a <code>RNTO</code> operation.
+        /// Gets or sets the <see cref="IUnixFileEntry"/> to use for a <c>RNTO</c> operation.
         /// </summary>
         [CanBeNull]
         public SearchResult<IUnixFileSystemEntry> RenameFrom { get; set; }
 
         /// <summary>
-        /// Gets the active <see cref="IFact"/> sent by <code>MLST</code> and <code>MLSD</code>.
+        /// Gets the active <see cref="IFact"/> sent by <c>MLST</c> and <c>MLSD</c>.
         /// </summary>
         [NotNull]
         [ItemNotNull]
@@ -154,7 +155,7 @@ namespace FubarDev.FtpServer
         public CreateEncryptedStreamDelegate CreateEncryptedStream { get; set; }
 
         /// <summary>
-        /// Gets or sets user data as <code>dynamic</code> object.
+        /// Gets or sets user data as <c>dynamic</c> object.
         /// </summary>
         public dynamic UserData { get; set; }
 
@@ -162,7 +163,7 @@ namespace FubarDev.FtpServer
         public void Dispose()
         {
             PassiveSocketClient?.Dispose();
-            FileSystem.Dispose();
+            (FileSystem as IDisposable)?.Dispose();
             PassiveSocketClient = null;
         }
     }

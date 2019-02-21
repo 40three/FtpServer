@@ -11,16 +11,16 @@ using System.Threading.Tasks;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>ABOR</code> command.
+    /// Implements the <c>ABOR</c> command.
     /// </summary>
     public class AborCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AborCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public AborCommandHandler(IFtpConnection connection)
-            : base(connection, "ABOR")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public AborCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "ABOR")
         {
         }
 

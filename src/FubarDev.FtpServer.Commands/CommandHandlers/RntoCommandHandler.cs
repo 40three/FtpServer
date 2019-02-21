@@ -13,16 +13,16 @@ using FubarDev.FtpServer.FileSystem;
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>RNTO</code> command.
+    /// Implements the <c>RNTO</c> command.
     /// </summary>
     public class RntoCommandHandler : FtpCommandHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RntoCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public RntoCommandHandler(IFtpConnection connection)
-            : base(connection, "RNTO")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        public RntoCommandHandler(IFtpConnectionAccessor connectionAccessor)
+            : base(connectionAccessor, "RNTO")
         {
         }
 

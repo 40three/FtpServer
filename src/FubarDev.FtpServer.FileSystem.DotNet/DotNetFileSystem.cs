@@ -28,8 +28,6 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
 
         private readonly int _streamBufferSize;
 
-        private bool _disposedValue;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DotNetFileSystem"/> class.
         /// </summary>
@@ -139,6 +137,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
                 var fileEntry = (DotNetFileEntry)entry;
                 fileEntry.Info.Delete();
             }
+
             return Task.FromResult(0);
         }
 
@@ -177,6 +176,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
                 output.Seek(startPosition.Value, SeekOrigin.Begin);
                 await data.CopyToAsync(output, _streamBufferSize, cancellationToken).ConfigureAwait(false);
             }
+
             return null;
         }
 
@@ -189,6 +189,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
             {
                 await data.CopyToAsync(output, _streamBufferSize, cancellationToken).ConfigureAwait(false);
             }
+
             return null;
         }
 
@@ -201,6 +202,7 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
                 await data.CopyToAsync(output, _streamBufferSize, cancellationToken).ConfigureAwait(false);
                 output.SetLength(output.Position);
             }
+
             return null;
         }
 
@@ -215,17 +217,15 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
         /// <returns>The modified <see cref="IUnixFileSystemEntry"/>.</returns>
         public Task<IUnixFileSystemEntry> SetMacTimeAsync(IUnixFileSystemEntry entry, DateTimeOffset? modify, DateTimeOffset? access, DateTimeOffset? create, CancellationToken cancellationToken)
         {
-            var dirEntry = entry as DotNetDirectoryEntry;
-            var fileEntry = entry as DotNetFileEntry;
-
             FileSystemInfo item;
-            if (dirEntry != null)
+            if (entry is DotNetDirectoryEntry dirEntry)
             {
                 item = dirEntry.Info;
             }
-            else if (fileEntry != null)
+            else if (entry is DotNetFileEntry fileEntry)
             {
                 item = fileEntry.Info;
+                dirEntry = null;
             }
             else
             {
@@ -253,28 +253,6 @@ namespace FubarDev.FtpServer.FileSystem.DotNet
             }
 
             return Task.FromResult<IUnixFileSystemEntry>(new DotNetFileEntry(this, (FileInfo)item));
-        }
-
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        /// <summary>
-        /// Dispose the object.
-        /// </summary>
-        /// <param name="disposing"><code>true</code> when called from <see cref="Dispose()"/>.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    // Nothing to dispose
-                }
-                _disposedValue = true;
-            }
         }
     }
 }

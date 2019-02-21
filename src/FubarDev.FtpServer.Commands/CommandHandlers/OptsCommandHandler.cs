@@ -7,27 +7,34 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using FubarDev.FtpServer.CommandExtensions;
+using JetBrains.Annotations;
 
 namespace FubarDev.FtpServer.CommandHandlers
 {
     /// <summary>
-    /// Implements the <code>OPTS</code> command.
+    /// Implements the <c>OPTS</c> command.
     /// </summary>
     public class OptsCommandHandler : FtpCommandHandler, IFtpCommandHandlerExtensionHost
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="OptsCommandHandler"/> class.
         /// </summary>
-        /// <param name="connection">The connection to create this command handler for.</param>
-        public OptsCommandHandler(IFtpConnection connection)
-            : base(connection, "OPTS")
+        /// <param name="connectionAccessor">The accessor to get the connection that is active during the <see cref="Process"/> method execution.</param>
+        /// <param name="extensions">All registered extensions.</param>
+        public OptsCommandHandler(
+            [NotNull] IFtpConnectionAccessor connectionAccessor,
+            [NotNull, ItemNotNull] IEnumerable<IFtpCommandHandlerExtension> extensions)
+            : base(connectionAccessor, "OPTS")
         {
-            Extensions = new Dictionary<string, IFtpCommandHandlerExtension>(StringComparer.OrdinalIgnoreCase);
+            Extensions = extensions
+                .Where(x => Names.Any(name => string.Equals(name, x.ExtensionFor, StringComparison.OrdinalIgnoreCase)))
+                .SelectMany(x => x.Names.Select(n => new { Name = n, Extension = x }))
+                .ToDictionary(x => x.Name, x => x.Extension, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <inheritdoc/>
@@ -40,12 +47,6 @@ namespace FubarDev.FtpServer.CommandHandlers
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<IFtpCommandHandlerExtension> GetExtensions()
-        {
-            yield return new GenericFtpCommandHandlerExtension(Connection, "OPTS", "UTF8", ProcessOptionUtf8, "UTF-8");
-        }
-
-        /// <inheritdoc/>
         public override async Task<FtpResponse> Process(FtpCommand command, CancellationToken cancellationToken)
         {
             var argument = FtpCommand.Parse(command.Argument);
@@ -55,24 +56,6 @@ namespace FubarDev.FtpServer.CommandHandlers
             }
 
             return await extension.Process(argument, cancellationToken).ConfigureAwait(false);
-        }
-
-        private Task<FtpResponse> ProcessOptionUtf8(FtpCommand command, CancellationToken cancellationToken)
-        {
-            switch (command.Argument.ToUpperInvariant())
-            {
-                case "ON":
-                    Connection.Encoding = Encoding.UTF8;
-                    return Task.FromResult(new FtpResponse(200, "Command okay."));
-                case "":
-                    Connection.Data.NlstEncoding = null;
-                    return Task.FromResult(new FtpResponse(200, "Command okay."));
-                case "NLST":
-                    Connection.Data.NlstEncoding = Encoding.UTF8;
-                    return Task.FromResult(new FtpResponse(200, "Command okay."));
-                default:
-                    return Task.FromResult(new FtpResponse(501, "Syntax error in parameters or arguments."));
-            }
         }
     }
 }
